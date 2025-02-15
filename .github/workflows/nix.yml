@@ -1,0 +1,54 @@
+name: Nix CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Run code and formatting checks
+        run: nix --print-build-logs flake check --show-trace
+
+  gitlint:
+    name: gitlint
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Check git messages in branch
+        run: nix develop -c gitlint --commits $(git merge-base origin/master HEAD)..HEAD
+
+  dead:
+    name: deadnix
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Run deadnix
+        run: nix run github:astro/deadnix
+
+  statix:
+    name: statix
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Run deadnix
+        run: nix develop -c statix check
