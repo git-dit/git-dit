@@ -386,10 +386,12 @@ fn mirror_impl(matches: &clap::ArgMatches) {
 
             // Prepare revwalk for iterating over all messages which already
             // hang by local refs.
-            let mut existing_refs = issue
-                .terminated_messages()
-                .unwrap_or_abort()
-                .revwalk;
+            let mut existing_refs = repo.revwalk().unwrap_or_abort();
+            for parent in issue.initial_message().unwrap_or_abort().parent_ids() {
+                existing_refs.hide(parent).unwrap_or_abort();
+            }
+            existing_refs.simplify_first_parent();
+            existing_refs.set_sorting(git2::Sort::TOPOLOGICAL);
             for reference in issue.local_refs(IssueRefType::Any).abort_on_err() {
                 existing_refs
                     .push(reference
