@@ -10,18 +10,14 @@ build = "mkmanpage.rs"
 [features]
 manpage = []
 
-[workspace]
-members = [
-    "lib"
-]
-
 [dependencies]
 atty = "0.2"
 chrono = "0.4"
 error-chain = "0.12"
-git2 = "0.12"
+git2 = "0.17"
 is-match = "0.1"
 lazy_static = "1"
+libgitdit = "0.5"
 log = "0.4"
 regex = "1"
 
@@ -29,7 +25,3 @@ regex = "1"
 version = "2.23"
 default-features = false
 features = [ "suggestions", "color", "yaml" ]
-
-[dependencies.libgitdit]
-path = "./lib/"
-
